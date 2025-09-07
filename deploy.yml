@@ -13,6 +13,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+      publish_dir: ./dist
+      publish_branch: gh-pages # 显式指定部署分支
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -34,3 +41,4 @@ jobs:
         publish_dir: ./dist # 您的构建输出目录，默认为 dist
         # publish_branch: gh-pages # 部署到的分支，默认为 gh-pages
         # cname: yourdomain.com # 如果您有自定义域名，可以在这里设置
+
