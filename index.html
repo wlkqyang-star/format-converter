@@ -1,14 +1,686 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="/format-converter/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>格式转换器1</title>
-    <script type="module" crossorigin src="/format-converter/assets/index-B4RSZQcC.js"></script>
-    <link rel="stylesheet" crossorigin href="/format-converter/assets/index-ByeUVpRd.css">
-  </head>
-  <body>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>格式转换器 - 多功能文件格式转换工具</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.js"></script>
+    <style>
+        /* Tailwind CSS 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8fafc;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #64748b;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .card.selected {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: white;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .card-description {
+            color: #64748b;
+            margin-bottom: 12px;
+        }
+        
+        .formats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .format-badge {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .upload-area {
+            background: white;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+        
+        .upload-area:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+        }
+        
+        .upload-area.dragover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        
+        .upload-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
+            color: #94a3b8;
+        }
+        
+        .upload-text {
+            font-size: 1.1rem;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+        
+        .upload-hint {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .button:hover {
+            background: #2563eb;
+        }
+        
+        .button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+        
+        .button-secondary {
+            background: #f1f5f9;
+            color: #475569;
+        }
+        
+        .button-secondary:hover {
+            background: #e2e8f0;
+        }
+        
+        .progress-container {
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #3b82f6;
+            transition: width 0.3s;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 8px;
+            color: #64748b;
+        }
+        
+        .result-container {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 20px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .result-success {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .result-error {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+        
+        .result-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+        }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .result-title {
+            font-weight: 600;
+        }
+        
+        .success-title {
+            color: #059669;
+        }
+        
+        .error-title {
+            color: #dc2626;
+        }
+        
+        .file-info {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .file-name {
+            font-weight: 500;
+            color: #1e293b;
+        }
+        
+        .file-size {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .format-selector {
+            margin: 20px 0;
+        }
+        
+        .format-selector label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .format-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            font-size: 1rem;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .bg-blue-500 { background-color: #3b82f6; }
+        .bg-green-500 { background-color: #10b981; }
+        .bg-purple-500 { background-color: #8b5cf6; }
+        .bg-orange-500 { background-color: #f97316; }
+        .bg-red-500 { background-color: #ef4444; }
+        .bg-indigo-500 { background-color: #6366f1; }
+    </style>
+</head>
+<body>
     <div id="root"></div>
-  </body>
+
+    <script type="text/babel">
+        const { useState } = React;
+        const { 
+            FileText, 
+            FileSpreadsheet, 
+            Image, 
+            Video, 
+            ScanText, 
+            ArrowRightLeft,
+            Upload,
+            Download,
+            CheckCircle,
+            AlertCircle
+        } = lucideReact;
+
+        const conversionTypes = [
+            {
+                id: 'json-csv',
+                title: 'JSON ↔ CSV',
+                description: '数据格式互转',
+                icon: FileSpreadsheet,
+                formats: ['JSON', 'CSV'],
+                color: 'bg-blue-500'
+            },
+            {
+                id: 'markdown-docx',
+                title: 'Markdown ↔ DOCX',
+                description: '文档格式互转',
+                icon: FileText,
+                formats: ['MD', 'DOCX'],
+                color: 'bg-green-500'
+            },
+            {
+                id: 'image-format',
+                title: 'HEIC/WEBP/AVIF ↔ JPG/PNG',
+                description: '图片格式转换',
+                icon: Image,
+                formats: ['HEIC', 'WEBP', 'AVIF', 'JPG', 'PNG'],
+                color: 'bg-purple-500'
+            },
+            {
+                id: 'video-gif',
+                title: '视频 → GIF',
+                description: '视频转动图',
+                icon: Video,
+                formats: ['MP4', 'AVI', 'MOV', 'GIF'],
+                color: 'bg-orange-500'
+            },
+            {
+                id: 'image-to-text-ocr',
+                title: '图片 → 文本 (OCR)',
+                description: '光学字符识别',
+                icon: ScanText,
+                formats: ['JPG', 'PNG', 'PDF', 'TXT'],
+                color: 'bg-red-500'
+            },
+            {
+                id: 'image-to-searchable-pdf-ocr',
+                title: '图片 → 可搜索PDF (OCR)',
+                description: '生成可搜索PDF',
+                icon: ScanText,
+                formats: ['JPG', 'PNG', 'PDF'],
+                color: 'bg-indigo-500'
+            }
+        ];
+
+        function App() {
+            const [selectedType, setSelectedType] = useState(null);
+            const [uploadedFile, setUploadedFile] = useState(null);
+            const [targetFormat, setTargetFormat] = useState('png');
+            const [isConverting, setIsConverting] = useState(false);
+            const [convertProgress, setConvertProgress] = useState(0);
+            const [convertResult, setConvertResult] = useState(null);
+            const [error, setError] = useState(null);
+
+            const handleFileUpload = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    setUploadedFile(file);
+                    setError(null);
+                    setConvertResult(null);
+                }
+            };
+
+            const handleDragOver = (event) => {
+                event.preventDefault();
+                event.currentTarget.classList.add('dragover');
+            };
+
+            const handleDragLeave = (event) => {
+                event.preventDefault();
+                event.currentTarget.classList.remove('dragover');
+            };
+
+            const handleDrop = (event) => {
+                event.preventDefault();
+                event.currentTarget.classList.remove('dragover');
+                const file = event.dataTransfer.files[0];
+                if (file) {
+                    setUploadedFile(file);
+                    setError(null);
+                    setConvertResult(null);
+                }
+            };
+
+            const formatFileSize = (bytes) => {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            };
+
+            const handleConvert = async () => {
+                if (!selectedType || !uploadedFile) {
+                    setError('请选择转换类型并上传文件');
+                    return;
+                }
+
+                setIsConverting(true);
+                setConvertProgress(0);
+                setError(null);
+
+                try {
+                    // 模拟转换进度
+                    const progressInterval = setInterval(() => {
+                        setConvertProgress(prev => {
+                            if (prev >= 90) {
+                                clearInterval(progressInterval);
+                                return 90;
+                            }
+                            return prev + 10;
+                        });
+                    }, 200);
+
+                    const formData = new FormData();
+                    formData.append('file', uploadedFile);
+                    
+                    // 为图片格式转换添加目标格式
+                    if (selectedType === 'image-format') {
+                        formData.append('target_format', targetFormat || 'png');
+                    }
+                    
+                    // 调用后端API
+                    const response = await fetch(`https://5000-imr517hvonyf5b3pcxoih-3af09bca.manusvm.computer/api/convert/${selectedType}`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    clearInterval(progressInterval);
+                    setConvertProgress(100);
+
+                    if (response.ok) {
+                        // 检查响应类型
+                        const contentType = response.headers.get('content-type');
+                        
+                        if (contentType && contentType.includes('application/json')) {
+                            // 如果是JSON响应，说明有错误
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || '转换失败');
+                        } else {
+                            // 如果是文件响应，创建下载链接
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            
+                            // 从响应头获取文件名
+                            const contentDisposition = response.headers.get('content-disposition');
+                            let filename = 'converted_file';
+                            if (contentDisposition) {
+                                const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+                                if (filenameMatch) {
+                                    filename = filenameMatch[1];
+                                }
+                            }
+                            
+                            setConvertResult({
+                                url,
+                                filename,
+                                size: blob.size
+                            });
+                        }
+                    } else {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `转换失败: ${response.status}`);
+                    }
+                } catch (err) {
+                    console.error('转换错误:', err);
+                    setError(err.message || '转换过程中发生错误，请重试');
+                } finally {
+                    setIsConverting(false);
+                }
+            };
+
+            const handleDownload = () => {
+                if (convertResult) {
+                    const link = document.createElement('a');
+                    link.href = convertResult.url;
+                    link.download = convertResult.filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            };
+
+            const resetForm = () => {
+                setSelectedType(null);
+                setUploadedFile(null);
+                setTargetFormat('png');
+                setIsConverting(false);
+                setConvertProgress(0);
+                setConvertResult(null);
+                setError(null);
+            };
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <h1 className="title">格式转换器</h1>
+                        <p className="subtitle">多功能文件格式转换工具，支持多种格式互转</p>
+                    </div>
+
+                    {!selectedType ? (
+                        <div className="grid">
+                            {conversionTypes.map((type) => {
+                                const IconComponent = type.icon;
+                                return (
+                                    <div
+                                        key={type.id}
+                                        className="card"
+                                        onClick={() => setSelectedType(type.id)}
+                                    >
+                                        <div className="card-header">
+                                            <div className={`card-icon ${type.color}`}>
+                                                <IconComponent size={24} />
+                                            </div>
+                                            <h3 className="card-title">{type.title}</h3>
+                                        </div>
+                                        <p className="card-description">{type.description}</p>
+                                        <div className="formats">
+                                            {type.formats.map((format) => (
+                                                <span key={format} className="format-badge">
+                                                    {format}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div>
+                            <div style={{ marginBottom: '20px' }}>
+                                <button className="button button-secondary" onClick={resetForm}>
+                                    <ArrowRightLeft size={16} />
+                                    重新选择转换类型
+                                </button>
+                            </div>
+
+                            <div className="card">
+                                <h3 className="card-title" style={{ marginBottom: '16px' }}>
+                                    {conversionTypes.find(t => t.id === selectedType)?.title}
+                                </h3>
+
+                                <div
+                                    className="upload-area"
+                                    onDragOver={handleDragOver}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={handleDrop}
+                                    onClick={() => document.getElementById('file-input').click()}
+                                >
+                                    <Upload className="upload-icon" />
+                                    <p className="upload-text">
+                                        {uploadedFile ? uploadedFile.name : '点击或拖拽文件到此处'}
+                                    </p>
+                                    <p className="upload-hint">
+                                        支持的格式: {conversionTypes.find(t => t.id === selectedType)?.formats.join(', ')}
+                                    </p>
+                                    <input
+                                        id="file-input"
+                                        type="file"
+                                        className="file-input"
+                                        onChange={handleFileUpload}
+                                        accept={selectedType === 'image-format' ? '.heic,.webp,.avif,.jpg,.jpeg,.png' : 
+                                               selectedType === 'json-csv' ? '.json,.csv' :
+                                               selectedType === 'markdown-docx' ? '.md,.docx' :
+                                               selectedType === 'video-gif' ? '.mp4,.avi,.mov' :
+                                               selectedType.includes('ocr') ? '.jpg,.jpeg,.png' : '*'}
+                                    />
+                                </div>
+
+                                {uploadedFile && (
+                                    <div className="file-info">
+                                        <div className="file-name">{uploadedFile.name}</div>
+                                        <div className="file-size">{formatFileSize(uploadedFile.size)}</div>
+                                    </div>
+                                )}
+
+                                {selectedType === 'image-format' && uploadedFile && (
+                                    <div className="format-selector">
+                                        <label htmlFor="target-format">目标格式:</label>
+                                        <select
+                                            id="target-format"
+                                            className="format-select"
+                                            value={targetFormat}
+                                            onChange={(e) => setTargetFormat(e.target.value)}
+                                        >
+                                            <option value="png">PNG</option>
+                                            <option value="jpg">JPG</option>
+                                            <option value="jpeg">JPEG</option>
+                                            <option value="webp">WEBP</option>
+                                        </select>
+                                    </div>
+                                )}
+
+                                {uploadedFile && (
+                                    <button
+                                        className="button"
+                                        onClick={handleConvert}
+                                        disabled={isConverting}
+                                    >
+                                        {isConverting ? '转换中...' : '开始转换'}
+                                        <ArrowRightLeft size={16} />
+                                    </button>
+                                )}
+
+                                {isConverting && (
+                                    <div className="progress-container">
+                                        <div className="progress-bar">
+                                            <div 
+                                                className="progress-fill" 
+                                                style={{ width: `${convertProgress}%` }}
+                                            ></div>
+                                        </div>
+                                        <p className="progress-text">{convertProgress}%</p>
+                                    </div>
+                                )}
+
+                                {convertResult && (
+                                    <div className="result-container result-success">
+                                        <div className="result-header">
+                                            <CheckCircle className="result-icon" style={{ color: '#059669' }} />
+                                            <h4 className="result-title success-title">转换成功！</h4>
+                                        </div>
+                                        <div className="file-info">
+                                            <div className="file-name">{convertResult.filename}</div>
+                                            <div className="file-size">{formatFileSize(convertResult.size)}</div>
+                                        </div>
+                                        <button className="button" onClick={handleDownload}>
+                                            <Download size={16} />
+                                            下载文件
+                                        </button>
+                                    </div>
+                                )}
+
+                                {error && (
+                                    <div className="result-container result-error">
+                                        <div className="result-header">
+                                            <AlertCircle className="result-icon" style={{ color: '#dc2626' }} />
+                                            <h4 className="result-title error-title">转换失败</h4>
+                                        </div>
+                                        <p style={{ color: '#dc2626' }}>{error}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
 </html>
+
