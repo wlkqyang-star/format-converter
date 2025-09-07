@@ -3,5 +3,5 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/format-converter/', // <-- 这里是 关键！
+  base: '/format-converter/', // <-- 这里是关键！
 })
