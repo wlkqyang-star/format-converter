@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [react( ),tailwindcss()],
   resolve: {
     alias: {
-      // 确保这里的路径是绝对路径，并且在所有环境中都能正确解析
+      // 确保这里的路径是绝对路径，并且在所有环境中都能正 确解析
       '@': path.resolve(__dirname, './src'),
     },
   },
