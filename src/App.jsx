@@ -131,7 +131,7 @@ function App() {
       }
       
       // 调用后端API
-      const response = await fetch(`https://qjh9iec7jyyg.manus.space/api/convert/${selectedType} `, {
+      const response = await fetch(`https://qjh9iec7jpny.manus.space/api/convert/${selectedType} `, {
         method: 'POST',
         body: formData
       } )
