@@ -131,7 +131,7 @@ function App() {
       }
       
       // 调用后端API
-      const response = await fetch(`https://121.40.64.241:5000//api/convert/${selectedType} `, {
+      const response = await fetch(`https://wlkqyang-star.xin/api/convert/${selectedType} `, {
         method: 'POST',
         body: formData
       } )
