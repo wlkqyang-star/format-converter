@@ -27,8 +27,8 @@ const conversionTypes = [
     color: 'bg-blue-500'
   },
   {
-    id: 'markdown-rtf',
-    title: 'Markdown ↔ RTF',
+    id: 'markdown-docx',
+    title: 'Markdown ↔ DOCX',
     description: '文档格式互转',
     icon: FileText,
     formats: ['MD', 'DOCX'],
