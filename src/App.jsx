@@ -125,7 +125,7 @@ function App() {
       const formData = new FormData()
       formData.append('file', uploadedFile)
       
-      // 为图片格式转换添加目标格式
+      // 为图片格式转换 添加目标格式
       if (selectedType === 'image-format') {
         formData.append('target_format', targetFormat || 'png')
       }
